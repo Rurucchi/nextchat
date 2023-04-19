@@ -1,4 +1,4 @@
-import { Input, Spacer } from "@nextui-org/react";
+import { Input, Spacer, Grid } from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -19,11 +19,19 @@ export default function Login() {
       </Head>
       <main className={css.body}>
         <h1 className={inter.className}>Login</h1>
-        <Spacer y={0.5} />
-        <Input placeholder="Username" />
-        <Spacer y={0.5} />
-        <Input readOnly placeholder="Password" />
-        <Spacer y={0.5} />
+        <Grid.Container gap={3} justify="center" className={inter.className}>
+          <Grid>
+            <Input labelPlaceholder="Mail" width="250px" clearable underlined />
+          </Grid>
+          <Grid>
+            <Input.Password
+              labelPlaceholder="Password"
+              width="250px"
+              clearable
+              underlined
+            />
+          </Grid>
+        </Grid.Container>
         <p className={inter.className}>
           No account? <a href="/register">Register</a>
         </p>

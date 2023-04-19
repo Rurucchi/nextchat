@@ -21,7 +21,7 @@ export default function Chat() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={css.body}>
-        <Message />
+        <Message username="test" content="string" uid={4} date={3} />
       </main>
     </>
   );

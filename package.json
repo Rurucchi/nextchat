@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev -p 3001",
+    "build": "next build -p 3001",
     "start": "next start",
     "lint": "next lint"
   },
@@ -14,6 +14,7 @@
     "@types/react": "18.0.35",
     "@types/react-dom": "18.0.11",
     "dotenv": "^16.0.3",
+    "firebase": "^9.20.0",
     "next": "13.3.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",

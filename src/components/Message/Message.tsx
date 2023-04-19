@@ -4,7 +4,20 @@ import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export default function Message() {
+// ts types
+type MessageProps = {
+  username: string;
+  content: string;
+  uid: number;
+  date: number;
+};
+
+export default function Message({
+  username,
+  content,
+  uid,
+  date,
+}: MessageProps) {
   return (
     <Card
       css={{ p: "$6", mw: "400px" }}
@@ -16,11 +29,11 @@ export default function Message() {
         <Grid.Container css={{ pl: "$6" }}>
           <Grid xs={12}>
             <Text h4 css={{ lineHeight: "$xs" }}>
-              Next UI
+              {username}
             </Text>
           </Grid>
           <Grid xs={12}>
-            <Text css={{ color: "$accents8" }}>nextui.org</Text>
+            <Text css={{ color: "$accents8" }}>{uid}</Text>
           </Grid>
         </Grid.Container>
       </Card.Header>
