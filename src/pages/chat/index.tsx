@@ -20,9 +20,7 @@ export default function Chat() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={css.body}>
-        <Message username="test" content="string" uid={4} date={3} />
-      </main>
+      <main className={css.body}></main>
     </>
   );
 }

@@ -1,4 +1,4 @@
-import { Card, Grid, Text, Link } from "@nextui-org/react";
+import { Card, Grid, Text, Tooltip } from "@nextui-org/react";
 import { Avatar } from "@nextui-org/react";
 import { Inter } from "next/font/google";
 
@@ -18,40 +18,29 @@ export default function Message({
   uid,
   date,
 }: MessageProps) {
+  let time = new Date(date);
   return (
-    <Card
-      css={{ p: "$6", mw: "400px" }}
-      className={inter.className}
-      isHoverable
-    >
+    <Card css={{ p: "$6", mw: "400px" }} isHoverable>
       <Card.Header>
         <Avatar squared src="https://i.pravatar.cc/150?u=a042581f4e29026024d" />
         <Grid.Container css={{ pl: "$6" }}>
-          <Grid xs={12}>
-            <Text h4 css={{ lineHeight: "$xs" }}>
-              {username}
-            </Text>
+          <Grid xs={8.3}>
+            <Tooltip content={uid}>
+              <Text h4 css={{ lineHeight: "$xs" }}>
+                {username}
+              </Text>
+            </Tooltip>
           </Grid>
-          <Grid xs={12}>
-            <Text css={{ color: "$accents8" }}>{uid}</Text>
+          <Grid>
+            <Text h5 css={{ color: "$accents8" }} suppressHydrationWarning>
+              {time.toLocaleTimeString("en-US")}
+            </Text>
           </Grid>
         </Grid.Container>
       </Card.Header>
       <Card.Body css={{ py: "$2" }}>
-        <Text>
-          Make beautiful websites regardless of your design experience.
-        </Text>
+        <Text>{content}</Text>
       </Card.Body>
-      <Card.Footer>
-        <Link
-          icon
-          color="primary"
-          target="_blank"
-          href="https://github.com/nextui-org/nextui"
-        >
-          Visit source code on GitHub.
-        </Link>
-      </Card.Footer>
     </Card>
   );
 }
