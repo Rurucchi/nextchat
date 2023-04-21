@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 // components
 import Message from "@/components/Message/Message";
+import SettingsButton from "@/components/SettingsButton/SettingsButton";
 
 export default function Chat() {
   return (
@@ -20,7 +21,9 @@ export default function Chat() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={css.body}></main>
+      <main className={css.body}>
+        <SettingsButton />
+      </main>
     </>
   );
 }

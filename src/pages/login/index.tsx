@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Input, Spacer, Grid } from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
@@ -6,9 +7,10 @@ import styles from "@/styles/Home.module.css";
 
 // css stuff
 const css = require("./styles.module.css");
-const inter = Inter({ subsets: ["latin"] });
-
 export default function Login() {
+  const [mail, setMail] = useState("");
+  const [password, setPassword] = useState("");
+
   return (
     <>
       <Head>
@@ -18,10 +20,18 @@ export default function Login() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={css.body}>
-        <h1 className={inter.className}>Login</h1>
-        <Grid.Container gap={3} justify="center" className={inter.className}>
+        <h1>Login</h1>
+        <Grid.Container gap={3} justify="center">
           <Grid>
-            <Input labelPlaceholder="Mail" width="250px" clearable underlined />
+            <Input
+              labelPlaceholder="Mail"
+              width="250px"
+              clearable
+              underlined
+              onChange={(e) => {
+                setMail(e.target.value);
+              }}
+            />
           </Grid>
           <Grid>
             <Input.Password
@@ -29,10 +39,13 @@ export default function Login() {
               width="250px"
               clearable
               underlined
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
           </Grid>
         </Grid.Container>
-        <p className={inter.className}>
+        <p>
           No account? <a href="/register">Register</a>
         </p>
       </main>

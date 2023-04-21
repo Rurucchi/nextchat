@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Input, Spacer, Grid } from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
@@ -9,6 +10,16 @@ const css = require("./styles.module.css");
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Register() {
+  const [username, setUsername] = useState("");
+  const [mail, setMail] = useState("");
+  const [password, setPassword] = useState("");
+
+  // testing for states
+
+  // useEffect(() => {
+  //   console.log(username);
+  // }, [username]);
+
   return (
     <>
       <Head>
@@ -26,10 +37,21 @@ export default function Register() {
               width="250px"
               clearable
               underlined
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
             />
           </Grid>
           <Grid>
-            <Input labelPlaceholder="Mail" width="250px" clearable underlined />
+            <Input
+              labelPlaceholder="Mail"
+              width="250px"
+              clearable
+              underlined
+              onChange={(e) => {
+                setMail(e.target.value);
+              }}
+            />
           </Grid>
           <Grid>
             <Input.Password
@@ -37,6 +59,9 @@ export default function Register() {
               width="250px"
               clearable
               underlined
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
             />
           </Grid>
         </Grid.Container>
