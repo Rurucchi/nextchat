@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Input, Spacer, Grid } from "@nextui-org/react";
+import {
+  Input,
+  Spacer,
+  Grid,
+  Button,
+  Tooltip,
+  normalColors,
+  NormalColors,
+} from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -9,16 +17,60 @@ import styles from "@/styles/Home.module.css";
 const css = require("./styles.module.css");
 const inter = Inter({ subsets: ["latin"] });
 
+// api
+// import register from "../api/auth/register";
+
+type InputColor =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "error";
+
 export default function Register() {
+  // data
   const [username, setUsername] = useState("");
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
-  // testing for states
+  // component handling
+  const [isDisabled, setIsDisabled] = useState(true);
 
-  // useEffect(() => {
-  //   console.log(username);
-  // }, [username]);
+  // colors
+  const [usernameInputColor, setUsernameInputColor] =
+    useState<InputColor>("error");
+  const [mailInputColor, setMailInputColor] = useState<InputColor>("error");
+  const [passwordInputColor, setPasswordInputColor] =
+    useState<InputColor>("error");
+
+  // components useEffect
+  useEffect(() => {
+    if (username) {
+      setUsernameInputColor("success");
+    }
+  }, [username]);
+
+  useEffect(() => {
+    if (mail) {
+      setMailInputColor("success");
+    }
+  }, [mail]);
+
+  useEffect(() => {
+    if (password) {
+      setPasswordInputColor("success");
+    }
+  }, [password]);
+
+  // Handleclick
+  function handleClick(mail: string, password: string) {
+    if (!username && !mail && !password) {
+      console.log("login");
+    } else {
+      console.log("not loggin");
+    }
+  }
 
   return (
     <>
@@ -33,6 +85,7 @@ export default function Register() {
         <Grid.Container gap={3} justify="center" className={inter.className}>
           <Grid>
             <Input
+              color={usernameInputColor}
               labelPlaceholder="Username"
               width="250px"
               clearable
@@ -44,6 +97,7 @@ export default function Register() {
           </Grid>
           <Grid>
             <Input
+              color={mailInputColor}
               labelPlaceholder="Mail"
               width="250px"
               clearable
@@ -55,6 +109,7 @@ export default function Register() {
           </Grid>
           <Grid>
             <Input.Password
+              color={passwordInputColor}
               labelPlaceholder="Password"
               width="250px"
               clearable
@@ -65,6 +120,18 @@ export default function Register() {
             />
           </Grid>
         </Grid.Container>
+        <Spacer y={0.25} />
+        <Tooltip content="test">
+          <Button
+            color="gradient"
+            onClick={() => {
+              handleClick(mail, password);
+            }}
+          >
+            Register
+          </Button>
+        </Tooltip>
+        <Spacer y={0.5} />
         <p className={inter.className}>
           Already have an account? <a href="/login">Login</a>
         </p>
