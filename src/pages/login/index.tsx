@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Input, Spacer, Grid } from "@nextui-org/react";
+import { Input, Spacer, Grid, Button } from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
@@ -7,9 +7,45 @@ import styles from "@/styles/Home.module.css";
 
 // css stuff
 const css = require("./styles.module.css");
+
+// bypass nextui typing
+type InputColor =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "error";
+
 export default function Login() {
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
+
+  //component handling
+  const [mailInputColor, setMailInputColor] = useState<InputColor>("error");
+  const [passwordInputColor, setPasswordInputColor] =
+    useState<InputColor>("error");
+
+  useEffect(() => {
+    if (mail) {
+      setMailInputColor("success");
+    }
+  }, [mail]);
+
+  useEffect(() => {
+    if (password) {
+      setPasswordInputColor("success");
+    }
+  }, [password]);
+
+  // Handleclick
+  function handleClick(mail: string, password: string) {
+    if (!username && !mail && !password) {
+      console.log("register");
+    } else {
+      console.log("can't register");
+    }
+  }
 
   return (
     <>
@@ -24,6 +60,7 @@ export default function Login() {
         <Grid.Container gap={3} justify="center">
           <Grid>
             <Input
+              color={mailInputColor}
               labelPlaceholder="Mail"
               width="250px"
               clearable
@@ -35,6 +72,7 @@ export default function Login() {
           </Grid>
           <Grid>
             <Input.Password
+              color={passwordInputColor}
               labelPlaceholder="Password"
               width="250px"
               clearable
@@ -45,6 +83,16 @@ export default function Login() {
             />
           </Grid>
         </Grid.Container>
+        <Spacer y={0.25} />
+        <Button
+          color="gradient"
+          onClick={() => {
+            handleClick(mail, password);
+          }}
+        >
+          Register
+        </Button>
+        <Spacer y={0.5} />
         <p>
           No account? <a href="/register">Register</a>
         </p>

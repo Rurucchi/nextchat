@@ -17,8 +17,8 @@ import styles from "@/styles/Home.module.css";
 const css = require("./styles.module.css");
 const inter = Inter({ subsets: ["latin"] });
 
-// api
-// import register from "../api/auth/register";
+// utils
+import validateEmail from "../../utils";
 
 type InputColor =
   | "default"
@@ -27,6 +27,9 @@ type InputColor =
   | "success"
   | "warning"
   | "error";
+
+// requests to firebase
+import register from "@/index";
 
 export default function Register() {
   // data
@@ -48,27 +51,31 @@ export default function Register() {
   useEffect(() => {
     if (username) {
       setUsernameInputColor("success");
+    } else {
+      setUsernameInputColor("error");
     }
   }, [username]);
 
   useEffect(() => {
-    if (mail) {
+    if (validateEmail(mail)) {
       setMailInputColor("success");
+    } else {
+      setUsernameInputColor("error");
     }
   }, [mail]);
 
   useEffect(() => {
     if (password) {
       setPasswordInputColor("success");
+    } else {
+      setUsernameInputColor("error");
     }
   }, [password]);
 
   // Handleclick
   function handleClick(mail: string, password: string) {
     if (!username && !mail && !password) {
-      console.log("login");
-    } else {
-      console.log("not loggin");
+      register(mail, password);
     }
   }
 
@@ -121,16 +128,14 @@ export default function Register() {
           </Grid>
         </Grid.Container>
         <Spacer y={0.25} />
-        <Tooltip content="test">
-          <Button
-            color="gradient"
-            onClick={() => {
-              handleClick(mail, password);
-            }}
-          >
-            Register
-          </Button>
-        </Tooltip>
+        <Button
+          color="gradient"
+          onClick={() => {
+            handleClick(mail, password);
+          }}
+        >
+          Register
+        </Button>
         <Spacer y={0.5} />
         <p className={inter.className}>
           Already have an account? <a href="/login">Login</a>

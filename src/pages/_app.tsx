@@ -1,14 +1,27 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { NextUIProvider } from "@nextui-org/react";
+import { createTheme, NextUIProvider, Text } from "@nextui-org/react";
 
+// Theming
+const theme = createTheme({
+  type: "dark",
+  theme: {
+    colors: {
+      text: "#ffffff",
+    },
+    space: {},
+    fonts: {},
+  },
+});
+
+// font
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <NextUIProvider>
+    <NextUIProvider theme={theme}>
       <main className={inter.className}>
         <Component {...pageProps} />
       </main>
