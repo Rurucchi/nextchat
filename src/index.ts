@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 // TODO: Add SDKs for Firebase products that you want to use
 
@@ -8,18 +10,19 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 // Your web app's Firebase configuration
 
 const firebaseConfig = {
+  apiKey: process.env.apiKey,
 
-  apiKey: "AIzaSyDbB7GXx64nZJoWvwF_sRn9SpB0NTFWehc",
+  authDomain: process.env.authDomain,
 
-  authDomain: "nextchat-282d4.firebaseapp.com",
+  projectId: process.env.projectId,
 
-  projectId: "nextchat-282d4",
+  storageBucket: process.env.storageBucket,
 
-  storageBucket: "nextchat-282d4.appspot.com",
+  messagingSenderId: process.env.messagingSenderId,
 
-  messagingSenderId: "893881672600",
+  appId: process.env.appId,
 
-  appId: "1:893881672600:web:12ab6c843e428a973881ed"
+  measurementId: process.env.measurementId
 
 };
 
