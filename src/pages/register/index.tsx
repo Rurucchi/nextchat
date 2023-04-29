@@ -29,7 +29,7 @@ type InputColor =
   | "error";
 
 // requests to firebase
-import register from "@/index";
+import register from "../api/auth/auth_register";
 
 export default function Register() {
   // data
@@ -73,9 +73,9 @@ export default function Register() {
   }, [password]);
 
   // Handleclick
-  function handleClick(mail: string, password: string) {
-    if (!username && !mail && !password) {
-      register(mail, password);
+  async function handleClick(mail: string, password: string) {
+    if (username && mail && password) {
+      const request = await register(mail, password);
     }
   }
 
@@ -130,7 +130,7 @@ export default function Register() {
         <Spacer y={0.25} />
         <Button
           color="gradient"
-          onClick={() => {
+          onPress={() => {
             handleClick(mail, password);
           }}
         >
