@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Input,
   Spacer,
@@ -32,6 +33,9 @@ type InputColor =
 import register from "../api/auth/auth_register";
 
 export default function Register() {
+  //hooks
+  const router = useRouter();
+
   // data
   const [username, setUsername] = useState("");
   const [mail, setMail] = useState("");

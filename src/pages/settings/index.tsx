@@ -4,12 +4,16 @@ import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
 import { Camera } from "react-iconly";
+import updateUserProfile from "../api/auth/update_profile";
+import { useState } from "react";
 
 // css stuff
 const css = require("./styles.module.css");
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Settings() {
+  const [username, setUsername] = useState("");
+
   return (
     <>
       <Head>
@@ -21,19 +25,21 @@ export default function Settings() {
       <main className={css.body}>
         <h1 className={inter.className}>Settings</h1>
         <div>
-          <Spacer y={0.5} />
-          <Grid.Container gap={2}>
-            <Grid>
-              <Button className={inter.className}>Change Username</Button>
-            </Grid>
-            <Grid>
-              <Button
-                auto
-                icon={<Camera set="curved" primaryColor="white" />}
-              />
-            </Grid>
-          </Grid.Container>
-          <Spacer y={0.5} />
+          <Spacer y={1} />
+
+          <Input
+            labelPlaceholder="Username"
+            initialValue="nextui123"
+            width="193px"
+            onChange={(e) => {
+              setUsername(e.target.value);
+            }}
+          />
+          <Spacer y={0.7} />
+          <Button size="md">Change Password</Button>
+          <Spacer y={0.7} />
+          <Button auto icon={<Camera set="curved" primaryColor="white" />} />
+          <Spacer y={0.7} />
         </div>
         <p className={inter.className}>
           Found a bug?{" "}

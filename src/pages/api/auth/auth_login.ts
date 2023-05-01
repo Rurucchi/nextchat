@@ -6,15 +6,14 @@ const auth = getAuth(firebaseApp);
 
 
 export default function login(email: string, password: string) {
+  let success = false;
   signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
-      // Signed in 
-      
       const user = userCredential.user;
-      return user;
+      success = true;
     })
     .catch((error) => {
       console.error(error);
-      // ..
     });
+  return success;
 }
