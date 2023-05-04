@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { Input, Spacer, Grid, Button } from "@nextui-org/react";
+import { Input, Spacer, Grid, Button, Tooltip } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 
 // css stuff
 const css = require("./styles.module.css");
+
+// utils
+import validateEmail from "@/utils";
 
 // bypass nextui typing
 type InputColor =
@@ -17,7 +18,15 @@ type InputColor =
   | "warning"
   | "error";
 
+// api
+import login from "../api/auth/auth_login";
+
+// -------------- COMPONENT
+
 export default function Login() {
+  const router = useRouter();
+
+  // states
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -25,27 +34,56 @@ export default function Login() {
   const [mailInputColor, setMailInputColor] = useState<InputColor>("error");
   const [passwordInputColor, setPasswordInputColor] =
     useState<InputColor>("error");
+  const [isDisabled, setIsDisabled] = useState(true);
 
+  const [mailTooltipText, setMailTooltipText] = useState("Email not valid");
+  const [passwordTooltipText, setPasswordTooltipText] =
+    useState("Password not valid");
+
+  // components stuff
   useEffect(() => {
-    if (mail) {
+    if (validateEmail(mail)) {
       setMailInputColor("success");
+      setMailTooltipText("✓");
+    } else {
+      setMailInputColor("error");
+      setMailTooltipText("Email not valid");
     }
   }, [mail]);
 
   useEffect(() => {
-    if (password) {
+    if (password.length > 5) {
       setPasswordInputColor("success");
+      setPasswordTooltipText("✓");
+    } else {
+      setPasswordInputColor("error");
+      setPasswordTooltipText("Password not valid");
     }
   }, [password]);
 
+  // button enabled
+  useEffect(() => {
+    if (validateEmail(mail) && password.length > 5) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
+  }, [mail, password]);
+
   // Handleclick
-  function handleClick(mail: string, password: string) {
-    if (!username && !mail && !password) {
-      console.log("register");
+  async function handleClick(mail: string, password: string) {
+    if (validateEmail(mail) && password.length > 5) {
+      const request = await login(mail, password);
+      console.log(request);
+      if (request) {
+        router.push("/chat");
+      }
     } else {
       console.log("can't register");
     }
   }
+
+  // -------------- JSX
 
   return (
     <>
@@ -59,38 +97,51 @@ export default function Login() {
         <h1>Login</h1>
         <Grid.Container gap={3} justify="center">
           <Grid>
-            <Input
+            <Tooltip
+              content={mailTooltipText}
+              trigger="hover"
               color={mailInputColor}
-              labelPlaceholder="Mail"
-              width="250px"
-              clearable
-              underlined
-              onChange={(e) => {
-                setMail(e.target.value);
-              }}
-            />
+            >
+              <Input
+                color={mailInputColor}
+                labelPlaceholder="Mail"
+                width="250px"
+                clearable
+                underlined
+                onChange={(e) => {
+                  setMail(e.target.value);
+                }}
+              />
+            </Tooltip>
           </Grid>
           <Grid>
-            <Input.Password
+            <Tooltip
+              content={passwordTooltipText}
+              trigger="hover"
               color={passwordInputColor}
-              labelPlaceholder="Password"
-              width="250px"
-              clearable
-              underlined
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
+            >
+              <Input.Password
+                color={passwordInputColor}
+                labelPlaceholder="Password"
+                width="250px"
+                clearable
+                underlined
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+              />
+            </Tooltip>
           </Grid>
         </Grid.Container>
         <Spacer y={0.25} />
         <Button
           color="gradient"
-          onClick={() => {
+          onPress={() => {
             handleClick(mail, password);
           }}
+          disabled={isDisabled}
         >
-          Register
+          Login
         </Button>
         <Spacer y={0.5} />
         <p>

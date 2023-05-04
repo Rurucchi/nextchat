@@ -29,7 +29,6 @@ export default function Settings() {
 
           <Input
             labelPlaceholder="Username"
-            initialValue="nextui123"
             width="193px"
             onChange={(e) => {
               setUsername(e.target.value);
@@ -39,6 +38,18 @@ export default function Settings() {
           <Button size="md">Change Password</Button>
           <Spacer y={0.7} />
           <Button auto icon={<Camera set="curved" primaryColor="white" />} />
+          <Spacer y={0.7} />
+          <Button
+            size="md"
+            onPress={() => {
+              updateUserProfile(
+                username,
+                "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg"
+              );
+            }}
+          >
+            Save Changes
+          </Button>
           <Spacer y={0.7} />
         </div>
         <p className={inter.className}>

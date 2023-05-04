@@ -15,6 +15,7 @@ export default function updateUserProfile(
     })
       .then(() => {
         success = true;
+        console.log("success");
       })
       .catch((error) => {
         // An error occurred

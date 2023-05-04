@@ -32,6 +32,9 @@ type InputColor =
 // requests to firebase
 import register from "../api/auth/auth_register";
 
+// internal auth stuff
+import getCurrentUser from "../api/auth/get_user_profile";
+
 export default function Register() {
   //hooks
   const router = useRouter();
@@ -41,7 +44,8 @@ export default function Register() {
   const [mail, setMail] = useState("");
   const [password, setPassword] = useState("");
 
-  // component handling
+  //------------- component handling
+
   const [isDisabled, setIsDisabled] = useState(true);
 
   // colors
@@ -51,35 +55,73 @@ export default function Register() {
   const [passwordInputColor, setPasswordInputColor] =
     useState<InputColor>("error");
 
+  const [usernameTooltipText, setUsernameTooltipText] = useState(
+    "Username must not be empty"
+  );
+  const [mailTooltipText, setMailTooltipText] = useState("Email not valid");
+  const [passwordTooltipText, setPasswordTooltipText] =
+    useState("Password not valid");
+
   // components useEffect
   useEffect(() => {
     if (username) {
       setUsernameInputColor("success");
+      setUsernameTooltipText("✓");
     } else {
       setUsernameInputColor("error");
+      setUsernameTooltipText("Username must not be empty");
     }
   }, [username]);
 
+  // states colors & text
   useEffect(() => {
     if (validateEmail(mail)) {
       setMailInputColor("success");
+      setMailTooltipText("✓");
     } else {
-      setUsernameInputColor("error");
+      setMailInputColor("error");
+      setMailTooltipText("Email not valid");
     }
   }, [mail]);
 
   useEffect(() => {
-    if (password) {
+    if (password.length > 5) {
       setPasswordInputColor("success");
+      setPasswordTooltipText("✓");
     } else {
-      setUsernameInputColor("error");
+      setPasswordInputColor("error");
+      setPasswordTooltipText("Password not valid");
     }
   }, [password]);
+
+  // component enabled
+  useEffect(() => {
+    if (validateEmail(mail) && password.length > 5 && username) {
+      setIsDisabled(false);
+    } else {
+      setIsDisabled(true);
+    }
+  }, [mail, password]);
+
+  // RUN ONCE USE EFFECT
+
+  useEffect(() => {
+    async function isLogged() {
+      let user = await getCurrentUser();
+      if (user) {
+        router.push("/chat");
+      }
+    }
+    isLogged();
+  }, []);
 
   // Handleclick
   async function handleClick(mail: string, password: string) {
     if (username && mail && password) {
       const request = await register(mail, password);
+      if (request) {
+        router.push("/chat");
+      }
     }
   }
 
@@ -95,40 +137,58 @@ export default function Register() {
         <h1 className={inter.className}>Register</h1>
         <Grid.Container gap={3} justify="center" className={inter.className}>
           <Grid>
-            <Input
+            <Tooltip
+              content={usernameTooltipText}
+              trigger="hover"
               color={usernameInputColor}
-              labelPlaceholder="Username"
-              width="250px"
-              clearable
-              underlined
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
+            >
+              <Input
+                color={usernameInputColor}
+                labelPlaceholder="Username"
+                width="250px"
+                clearable
+                underlined
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                }}
+              />
+            </Tooltip>
           </Grid>
           <Grid>
-            <Input
+            <Tooltip
+              content={mailTooltipText}
+              trigger="hover"
               color={mailInputColor}
-              labelPlaceholder="Mail"
-              width="250px"
-              clearable
-              underlined
-              onChange={(e) => {
-                setMail(e.target.value);
-              }}
-            />
+            >
+              <Input
+                color={mailInputColor}
+                labelPlaceholder="Mail"
+                width="250px"
+                clearable
+                underlined
+                onChange={(e) => {
+                  setMail(e.target.value);
+                }}
+              />
+            </Tooltip>
           </Grid>
           <Grid>
-            <Input.Password
+            <Tooltip
+              content={passwordTooltipText}
+              trigger="hover"
               color={passwordInputColor}
-              labelPlaceholder="Password"
-              width="250px"
-              clearable
-              underlined
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-            />
+            >
+              <Input.Password
+                color={passwordInputColor}
+                labelPlaceholder="Password"
+                width="250px"
+                clearable
+                underlined
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                }}
+              />
+            </Tooltip>
           </Grid>
         </Grid.Container>
         <Spacer y={0.25} />
@@ -137,6 +197,7 @@ export default function Register() {
           onPress={() => {
             handleClick(mail, password);
           }}
+          disabled={isDisabled}
         >
           Register
         </Button>

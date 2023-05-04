@@ -4,12 +4,12 @@ import { getAuth } from "firebase/auth";
 import firebaseApp from "../../../firebaseconfig";
 const auth = getAuth(firebaseApp);
 
-
-export default function login(email: string, password: string) {
+export default async function login(email: string, password: string) {
   let success = false;
-  signInWithEmailAndPassword(auth, email, password)
+  await signInWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
+      // console.log(user);
       success = true;
     })
     .catch((error) => {
