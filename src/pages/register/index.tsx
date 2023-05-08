@@ -19,7 +19,7 @@ const css = require("./styles.module.css");
 const inter = Inter({ subsets: ["latin"] });
 
 // utils
-import validateEmail from "../../utils";
+import validateEmail from "../../utils/check_email";
 
 type InputColor =
   | "default"

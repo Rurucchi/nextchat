@@ -7,7 +7,8 @@ import Head from "next/head";
 const css = require("./styles.module.css");
 
 // utils
-import validateEmail from "@/utils";
+import validateEmail from "@/utils/check_email";
+// import AuthAccess from "@/utils/auth_access";
 
 // bypass nextui typing
 type InputColor =
@@ -20,6 +21,7 @@ type InputColor =
 
 // api
 import login from "../api/auth/auth_login";
+import isLogged from "../api/auth/is_logged";
 
 // -------------- COMPONENT
 
@@ -40,7 +42,7 @@ export default function Login() {
   const [passwordTooltipText, setPasswordTooltipText] =
     useState("Password not valid");
 
-  // components stuff
+  // -------------- components stuff
   useEffect(() => {
     if (validateEmail(mail)) {
       setMailInputColor("success");
@@ -74,7 +76,8 @@ export default function Login() {
   async function handleClick(mail: string, password: string) {
     if (validateEmail(mail) && password.length > 5) {
       const request = await login(mail, password);
-      console.log(request);
+      console.log(await isLogged());
+
       if (request) {
         router.push("/chat");
       }
@@ -83,7 +86,17 @@ export default function Login() {
     }
   }
 
-  // -------------- JSX
+  // --------------------- FIRST LOAD
+  useEffect(() => {
+    (async () => {
+      const status = await isLogged();
+      if (status) {
+        router.push("/chat");
+      }
+    })();
+  }, []);
+
+  // --------------------- TSX
 
   return (
     <>
