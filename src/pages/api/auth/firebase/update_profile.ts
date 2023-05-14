@@ -1,6 +1,5 @@
 import { updateProfile, getAuth } from "firebase/auth";
-
-import firebaseApp from "../../../firebaseconfig";
+import firebaseApp from "@/firebaseconfig";
 const auth = getAuth(firebaseApp);
 
 export default function updateUserProfile(

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Input, Spacer, Grid, Button, Tooltip } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import Head from "next/head";
+import { getAuth } from "firebase/auth";
 
 // css stuff
 const css = require("./styles.module.css");
@@ -20,8 +21,12 @@ type InputColor =
   | "error";
 
 // api
-import login from "../api/auth/auth_login";
-import isLogged from "../api/auth/is_logged";
+import login from "../api/auth/firebase/auth_login";
+import getCurrentUser from "../api/auth/firebase/get_current_user";
+
+// firebase shit
+import firebaseApp from "@/firebaseconfig";
+const auth = getAuth(firebaseApp);
 
 // -------------- COMPONENT
 
@@ -38,28 +43,31 @@ export default function Login() {
     useState<InputColor>("error");
   const [isDisabled, setIsDisabled] = useState(true);
 
-  const [mailTooltipText, setMailTooltipText] = useState("Email not valid");
-  const [passwordTooltipText, setPasswordTooltipText] =
-    useState("Password not valid");
+  // const [mailTooltipText, setMailTooltipText] = useState("Email not valid");
+  // const [passwordTooltipText, setPasswordTooltipText] =
+  //   useState("Password not valid");
+
+  const [mailTooltipVisible, setMailTooltipVisible] = useState(false);
+  const [passwordTooltipVisible, setPasswordTooltipVisible] = useState(false);
 
   // -------------- components stuff
   useEffect(() => {
     if (validateEmail(mail)) {
       setMailInputColor("success");
-      setMailTooltipText("✓");
+      setMailTooltipVisible(true);
     } else {
       setMailInputColor("error");
-      setMailTooltipText("Email not valid");
+      setMailTooltipVisible(false);
     }
   }, [mail]);
 
   useEffect(() => {
     if (password.length > 5) {
       setPasswordInputColor("success");
-      setPasswordTooltipText("✓");
+      setPasswordTooltipVisible(true);
     } else {
       setPasswordInputColor("error");
-      setPasswordTooltipText("Password not valid");
+      setPasswordTooltipVisible(false);
     }
   }, [password]);
 
@@ -76,8 +84,6 @@ export default function Login() {
   async function handleClick(mail: string, password: string) {
     if (validateEmail(mail) && password.length > 5) {
       const request = await login(mail, password);
-      console.log(await isLogged());
-
       if (request) {
         router.push("/chat");
       }
@@ -89,10 +95,11 @@ export default function Login() {
   // --------------------- FIRST LOAD
   useEffect(() => {
     (async () => {
-      const status = await isLogged();
-      if (status) {
-        router.push("/chat");
-      }
+      getAuth(firebaseApp).onAuthStateChanged(function (user) {
+        if (user) {
+          router.push("/chat");
+        }
+      });
     })();
   }, []);
 
@@ -111,9 +118,10 @@ export default function Login() {
         <Grid.Container gap={3} justify="center">
           <Grid>
             <Tooltip
-              content={mailTooltipText}
+              content="Mail not valid!"
               trigger="hover"
               color={mailInputColor}
+              isDisabled={mailTooltipVisible}
             >
               <Input
                 color={mailInputColor}
@@ -129,9 +137,10 @@ export default function Login() {
           </Grid>
           <Grid>
             <Tooltip
-              content={passwordTooltipText}
+              content="Password not valid!"
               trigger="hover"
               color={passwordInputColor}
+              isDisabled={passwordTooltipVisible}
             >
               <Input.Password
                 color={passwordInputColor}

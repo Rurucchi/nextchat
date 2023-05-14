@@ -1,18 +1,43 @@
 import { Input, Spacer, Button, Grid } from "@nextui-org/react";
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import { Camera } from "react-iconly";
-import updateUserProfile from "../api/auth/update_profile";
 import { useState } from "react";
+
+// uuid
+const { v4: uuidv4 } = require("uuid");
+
+// firebase
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import updateUserProfile from "../api/auth/firebase/update_profile";
+import firebaseApp from "@/firebaseconfig";
 
 // css stuff
 const css = require("./styles.module.css");
-const inter = Inter({ subsets: ["latin"] });
+
+//firebase stuff
+const storage = getStorage(firebaseApp);
 
 export default function Settings() {
   const [username, setUsername] = useState("");
+  const [imgUrl, setImgUrl] = useState(null);
+
+  function handlePfp() {
+    const imgUid = uuidv4();
+    let inputElement: HTMLElement;
+    if (typeof document !== "undefined") {
+      inputElement = document.getElementById("imgUpload") as HTMLElement;
+      inputElement.click();
+    }
+
+    const pfpRef = ref(storage, imgUid);
+
+    // updateUserProfile(
+    //   username,
+    //   "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg"
+    // );
+  }
+
+  const handleSubmit = () => {};
 
   return (
     <>
@@ -23,36 +48,34 @@ export default function Settings() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={css.body}>
-        <h1 className={inter.className}>Settings</h1>
+        <h1>Settings</h1>
         <div>
           <Spacer y={1} />
+          <div className={css.usernameContainer}>
+            <Input
+              labelPlaceholder="Username"
+              width="140px"
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+            />
+            <input type="file" id="imgUpload" className={css.fileSelector} />
+            <Button
+              auto
+              icon={<Camera set="curved" primaryColor="white" />}
+              onPress={() => handlePfp()}
+            />
+          </div>
 
-          <Input
-            labelPlaceholder="Username"
-            width="193px"
-            onChange={(e) => {
-              setUsername(e.target.value);
-            }}
-          />
           <Spacer y={0.7} />
           <Button size="md">Change Password</Button>
           <Spacer y={0.7} />
-          <Button auto icon={<Camera set="curved" primaryColor="white" />} />
-          <Spacer y={0.7} />
-          <Button
-            size="md"
-            onPress={() => {
-              updateUserProfile(
-                username,
-                "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg"
-              );
-            }}
-          >
+          <Button size="md" onPress={() => {}}>
             Save Changes
           </Button>
           <Spacer y={0.7} />
         </div>
-        <p className={inter.className}>
+        <p>
           Found a bug?{" "}
           <a href="https://github.com/Rurucchi/nextchat/issues" target="_blank">
             Open an issue

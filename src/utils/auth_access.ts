@@ -1,25 +1,14 @@
-//// ----------- NOT WORKING, HARDCODED IN EVERY PAGE FOR NOW
-
-// import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
-// import { useRouter } from "next/navigation";
-
+// import { getAuth, onAuthStateChanged } from "firebase/auth";
 // import firebaseApp from "@/firebaseconfig";
+
 // const auth = getAuth(firebaseApp);
 
-// export default async function AuthAccess(url: string, loggedState: boolean) {
-//   const router = useRouter();
-//   try {
-//     const user = await auth.currentUser;
-//     if (loggedState) {
-//       if (user) {
-//         router.push(url);
-//       }
-//     } else {
-//       if (!user) {
-//         router.push(url);
-//       }
+// export default async function denyLoginAccess(user: object | null) {
+//   let success = false;
+//   await onAuthStateChanged(auth, (user) => {
+//     if (user) {
+//       success = true;
 //     }
-//   } catch (error) {
-//     console.log(error);
-//   }
+//   });
+//   return success;
 // }

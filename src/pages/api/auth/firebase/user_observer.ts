@@ -1,9 +1,8 @@
 import { onAuthStateChanged } from "firebase/auth";
 import { getAuth } from "firebase/auth";
 
-import firebaseApp from "../../../firebaseconfig";
+import firebaseApp from "@/firebaseconfig";
 const auth = getAuth(firebaseApp);
-
 
 export default function register(email: string, password: string) {
   let success = false;
@@ -17,7 +16,6 @@ export default function register(email: string, password: string) {
       // User is signed out
       // ...
     }
-  
   });
-    return success;
+  return success;
 }

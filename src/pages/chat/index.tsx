@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
 import { Input, Spacer } from "@nextui-org/react";
 import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import styles from "@/styles/Home.module.css";
+import { useRouter } from "next/router";
+import { getAuth } from "firebase/auth";
 
 // css stuff
 const css = require("./styles.module.css");
@@ -10,9 +13,34 @@ const inter = Inter({ subsets: ["latin"] });
 
 // components
 import Message from "@/components/Message/Message";
-import SettingsButton from "@/components/SettingsButton/SettingsButton";
+import SettingsButton from "@/components/Buttons/SettingsButton/SettingsButton";
+
+// firebase shit
+import firebaseApp from "@/firebaseconfig";
+import getCurrentUser from "../api/auth/firebase/get_current_user";
+import LogoutButton from "@/components/Buttons/LogoutButton/LogoutButton";
+const auth = getAuth(firebaseApp);
+
+// api
 
 export default function Chat() {
+  const router = useRouter();
+
+  // worst code i willl evver write smh
+
+  useEffect(() => {
+    (async () => {
+      getAuth(firebaseApp).onAuthStateChanged(function (user) {
+        if (user) {
+          const loggedUser = getCurrentUser(user);
+          console.log(loggedUser);
+        } else {
+          router.push("/login");
+        }
+      });
+    })();
+  }, []);
+
   return (
     <>
       <Head>
@@ -23,6 +51,7 @@ export default function Chat() {
       </Head>
       <main className={css.body}>
         <SettingsButton />
+        <LogoutButton />
       </main>
     </>
   );

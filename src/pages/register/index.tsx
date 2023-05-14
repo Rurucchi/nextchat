@@ -33,7 +33,7 @@ type InputColor =
 import register from "../api/auth/auth_register";
 
 // internal auth stuff
-import getCurrentUser from "../api/auth/get_user_profile";
+import getCurrentUser from "../api/auth/get_current_user";
 
 export default function Register() {
   //hooks
