@@ -22,7 +22,6 @@ type InputColor =
 
 // api
 import login from "../api/auth/firebase/auth_login";
-import getCurrentUser from "../api/auth/firebase/get_current_user";
 
 // firebase shit
 import firebaseApp from "@/firebaseconfig";
@@ -47,27 +46,27 @@ export default function Login() {
   // const [passwordTooltipText, setPasswordTooltipText] =
   //   useState("Password not valid");
 
-  const [mailTooltipVisible, setMailTooltipVisible] = useState(false);
-  const [passwordTooltipVisible, setPasswordTooltipVisible] = useState(false);
+  const [mailTooltipDisabled, setMailTooltipDisabled] = useState(false);
+  const [passwordTooltipDisabled, setPasswordTooltipDisabled] = useState(false);
 
   // -------------- components stuff
   useEffect(() => {
     if (validateEmail(mail)) {
       setMailInputColor("success");
-      setMailTooltipVisible(true);
+      setMailTooltipDisabled(true);
     } else {
       setMailInputColor("error");
-      setMailTooltipVisible(false);
+      setMailTooltipDisabled(false);
     }
   }, [mail]);
 
   useEffect(() => {
     if (password.length > 5) {
       setPasswordInputColor("success");
-      setPasswordTooltipVisible(true);
+      setPasswordTooltipDisabled(true);
     } else {
       setPasswordInputColor("error");
-      setPasswordTooltipVisible(false);
+      setPasswordTooltipDisabled(false);
     }
   }, [password]);
 
@@ -121,7 +120,7 @@ export default function Login() {
               content="Mail not valid!"
               trigger="hover"
               color={mailInputColor}
-              isDisabled={mailTooltipVisible}
+              isDisabled={mailTooltipDisabled}
             >
               <Input
                 color={mailInputColor}
@@ -140,7 +139,7 @@ export default function Login() {
               content="Password not valid!"
               trigger="hover"
               color={passwordInputColor}
-              isDisabled={passwordTooltipVisible}
+              isDisabled={passwordTooltipDisabled}
             >
               <Input.Password
                 color={passwordInputColor}

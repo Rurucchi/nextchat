@@ -1,13 +1,15 @@
 import { Input, Spacer, Button, Grid } from "@nextui-org/react";
 import Head from "next/head";
 import { Camera } from "react-iconly";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 // uuid
 const { v4: uuidv4 } = require("uuid");
 
 // firebase
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getAuth } from "firebase/auth";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import updateUserProfile from "../api/auth/firebase/update_profile";
 import firebaseApp from "@/firebaseconfig";
 
@@ -17,27 +19,68 @@ const css = require("./styles.module.css");
 //firebase stuff
 const storage = getStorage(firebaseApp);
 
+// api
+import getCurrentUser from "../api/auth/firebase/get_current_user";
+
+// components
+import UserPreview from "@/components/userPreviewSettings";
+
 export default function Settings() {
   const [username, setUsername] = useState("");
-  const [imgUrl, setImgUrl] = useState(null);
+  const [pfpUrl, setPfpUrl] = useState("");
 
-  function handlePfp() {
-    const imgUid = uuidv4();
-    let inputElement: HTMLElement;
-    if (typeof document !== "undefined") {
-      inputElement = document.getElementById("imgUpload") as HTMLElement;
-      inputElement.click();
-    }
+  const router = useRouter();
 
-    const pfpRef = ref(storage, imgUid);
-
-    // updateUserProfile(
-    //   username,
-    //   "https://i.natgeofe.com/n/548467d8-c5f1-4551-9f58-6817a8d2c45e/NationalGeographic_2572187_square.jpg"
-    // );
+  let inputElement: HTMLInputElement;
+  if (typeof document !== "undefined") {
+    inputElement = document.getElementById("imgUpload") as HTMLInputElement;
   }
 
-  const handleSubmit = () => {};
+  // callable functions
+
+  function handlePfp() {
+    inputElement.click();
+  }
+
+  const handleSubmit = () => {
+    // img handling
+    const imgUid = uuidv4();
+    const pfpRef = ref(storage, "pfp/" + imgUid);
+    if (inputElement.files?.length === 1) {
+      uploadBytes(pfpRef, inputElement.files[0]).then((snapshot) => {
+        console.log("Uploaded a blob or file!");
+        getDownloadURL(ref(storage, "pfp/" + imgUid)).then((url) => {
+          updateUserProfile(username, url);
+        });
+      });
+    } else {
+      // profile handling
+      updateUserProfile(username, null);
+    }
+  };
+
+  // --- useEffects
+
+  // ------------- FIRST LOAD
+  useEffect(() => {
+    (async () => {
+      getAuth(firebaseApp).onAuthStateChanged(function (user) {
+        if (user) {
+          const loggedUser = getCurrentUser(user);
+          if (loggedUser.displayName) {
+            setUsername(loggedUser.displayName);
+          }
+          if (loggedUser.photoURL) {
+            setPfpUrl(loggedUser.photoURL);
+          } else {
+            setPfpUrl("");
+          }
+        } else {
+          router.push("/login");
+        }
+      });
+    })();
+  }, []);
 
   return (
     <>
@@ -49,31 +92,45 @@ export default function Settings() {
       </Head>
       <main className={css.body}>
         <h1>Settings</h1>
-        <div>
-          <Spacer y={1} />
-          <div className={css.usernameContainer}>
-            <Input
-              labelPlaceholder="Username"
-              width="140px"
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
-            <input type="file" id="imgUpload" className={css.fileSelector} />
-            <Button
-              auto
-              icon={<Camera set="curved" primaryColor="white" />}
-              onPress={() => handlePfp()}
-            />
-          </div>
+        <div className={css.contentContainer}>
+          <div>
+            <Spacer y={1} />
+            <div className={css.usernameContainer}>
+              <Input
+                labelPlaceholder="Username"
+                width="140px"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                }}
+              />
+              <input
+                type="file"
+                id="imgUpload"
+                className={css.fileSelector}
+                accept="image/png, image/gif, image/jpeg"
+              />
+              <Button
+                auto
+                icon={<Camera set="curved" primaryColor="white" />}
+                onPress={() => handlePfp()}
+              />
+            </div>
 
-          <Spacer y={0.7} />
-          <Button size="md">Change Password</Button>
-          <Spacer y={0.7} />
-          <Button size="md" onPress={() => {}}>
-            Save Changes
-          </Button>
-          <Spacer y={0.7} />
+            <Spacer y={0.7} />
+            <Button size="md">Change Password</Button>
+            <Spacer y={0.7} />
+            <Button
+              size="md"
+              onPress={() => {
+                handleSubmit();
+              }}
+            >
+              Save Changes
+            </Button>
+            <Spacer y={0.7} />
+          </div>
+          <UserPreview username={username} imgUrl={pfpUrl} />
         </div>
         <p>
           Found a bug?{" "}

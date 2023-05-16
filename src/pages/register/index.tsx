@@ -6,17 +6,18 @@ import {
   Grid,
   Button,
   Tooltip,
-  normalColors,
-  NormalColors,
+  Popover,
+  Text,
 } from "@nextui-org/react";
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
+
+// firebase
+import { getAuth } from "firebase/auth";
+import firebaseApp from "@/firebaseconfig";
+const auth = getAuth(firebaseApp);
 
 // css stuff
 const css = require("./styles.module.css");
-const inter = Inter({ subsets: ["latin"] });
 
 // utils
 import validateEmail from "../../utils/check_email";
@@ -30,10 +31,10 @@ type InputColor =
   | "error";
 
 // requests to firebase
-import register from "../api/auth/auth_register";
+import register from "../api/auth/firebase/auth_register";
+import updateUserProfile from "../api/auth/firebase/update_profile";
 
 // internal auth stuff
-import getCurrentUser from "../api/auth/get_current_user";
 
 export default function Register() {
   //hooks
@@ -62,14 +63,22 @@ export default function Register() {
   const [passwordTooltipText, setPasswordTooltipText] =
     useState("Password not valid");
 
+  // disable tooltips
+  const [usernameTooltipDisabled, setUsernamelTooltipDisabled] =
+    useState(false);
+  const [mailTooltipDisabled, setMailTooltipDisabled] = useState(false);
+  const [passwordTooltipDisabled, setPasswordTooltipDisabled] = useState(false);
+  const [userErrorDisabled, setUserErrorDisabled] = useState(true);
+
   // components useEffect
   useEffect(() => {
     if (username) {
       setUsernameInputColor("success");
-      setUsernameTooltipText("✓");
+      setUsernamelTooltipDisabled(true);
     } else {
       setUsernameInputColor("error");
       setUsernameTooltipText("Username must not be empty");
+      setUsernamelTooltipDisabled(false);
     }
   }, [username]);
 
@@ -77,20 +86,22 @@ export default function Register() {
   useEffect(() => {
     if (validateEmail(mail)) {
       setMailInputColor("success");
-      setMailTooltipText("✓");
+      setMailTooltipDisabled(true);
     } else {
       setMailInputColor("error");
       setMailTooltipText("Email not valid");
+      setMailTooltipDisabled(false);
     }
   }, [mail]);
 
   useEffect(() => {
     if (password.length > 5) {
       setPasswordInputColor("success");
-      setPasswordTooltipText("✓");
+      setPasswordTooltipDisabled(true);
     } else {
       setPasswordInputColor("error");
       setPasswordTooltipText("Password not valid");
+      setPasswordTooltipDisabled(false);
     }
   }, [password]);
 
@@ -98,21 +109,21 @@ export default function Register() {
   useEffect(() => {
     if (validateEmail(mail) && password.length > 5 && username) {
       setIsDisabled(false);
+      setUserErrorDisabled(true);
     } else {
       setIsDisabled(true);
     }
   }, [mail, password]);
 
-  // RUN ONCE USE EFFECT
-
+  // --------------------- FIRST LOAD
   useEffect(() => {
-    async function isLogged() {
-      let user = await getCurrentUser();
-      if (user) {
-        router.push("/chat");
-      }
-    }
-    isLogged();
+    (async () => {
+      getAuth(firebaseApp).onAuthStateChanged(function (user) {
+        if (user) {
+          router.push("/chat");
+        }
+      });
+    })();
   }, []);
 
   // Handleclick
@@ -120,7 +131,10 @@ export default function Register() {
     if (username && mail && password) {
       const request = await register(mail, password);
       if (request) {
+        updateUserProfile(username, null);
         router.push("/chat");
+      } else {
+        setUserErrorDisabled(false);
       }
     }
   }
@@ -134,13 +148,14 @@ export default function Register() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={css.body}>
-        <h1 className={inter.className}>Register</h1>
-        <Grid.Container gap={3} justify="center" className={inter.className}>
+        <h1>Register</h1>
+        <Grid.Container gap={3} justify="center">
           <Grid>
             <Tooltip
               content={usernameTooltipText}
               trigger="hover"
               color={usernameInputColor}
+              isDisabled={usernameTooltipDisabled}
             >
               <Input
                 color={usernameInputColor}
@@ -159,6 +174,7 @@ export default function Register() {
               content={mailTooltipText}
               trigger="hover"
               color={mailInputColor}
+              isDisabled={mailTooltipDisabled}
             >
               <Input
                 color={mailInputColor}
@@ -177,6 +193,7 @@ export default function Register() {
               content={passwordTooltipText}
               trigger="hover"
               color={passwordInputColor}
+              isDisabled={passwordTooltipDisabled}
             >
               <Input.Password
                 color={passwordInputColor}
@@ -192,17 +209,24 @@ export default function Register() {
           </Grid>
         </Grid.Container>
         <Spacer y={0.25} />
-        <Button
-          color="gradient"
-          onPress={() => {
-            handleClick(mail, password);
-          }}
-          disabled={isDisabled}
+        <Tooltip
+          color="error"
+          content="Email is already taken."
+          placement="bottom"
+          isDisabled={userErrorDisabled}
         >
-          Register
-        </Button>
+          <Button
+            color="gradient"
+            onPress={() => {
+              handleClick(mail, password);
+            }}
+            disabled={isDisabled}
+          >
+            Register
+          </Button>
+        </Tooltip>
         <Spacer y={0.5} />
-        <p className={inter.className}>
+        <p>
           Already have an account? <a href="/login">Login</a>
         </p>
       </main>

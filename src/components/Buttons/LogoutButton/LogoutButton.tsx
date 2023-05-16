@@ -23,6 +23,7 @@ export default function LogoutButton() {
   return (
     <div className={css.position}>
       <Button
+        color="error"
         auto
         icon={<Logout set="light" primaryColor="white" />}
         onPress={() => handleclick()}

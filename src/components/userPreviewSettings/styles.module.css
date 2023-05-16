@@ -1,0 +1,16 @@
+.previewContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 9px;
+  width: 200px;
+  height: 325px;
+}
+
+.img {
+  border-radius: 15px;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}

@@ -4,7 +4,7 @@ const auth = getAuth(firebaseApp);
 
 export default function updateUserProfile(
   displayName: string,
-  photoURL: string
+  photoURL: string | null
 ) {
   let success = false;
   if (auth.currentUser) {
