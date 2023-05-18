@@ -24,10 +24,14 @@ import getCurrentUser from "../api/auth/firebase/get_current_user";
 
 // components
 import UserPreview from "@/components/userPreviewSettings";
+import GoBackButton from "@/components/Buttons/GoBackButton/GobackButton";
 
 export default function Settings() {
   const [username, setUsername] = useState("");
   const [pfpUrl, setPfpUrl] = useState("");
+
+  //  pfp blob
+  let pfpBlob;
 
   const router = useRouter();
 
@@ -43,10 +47,12 @@ export default function Settings() {
   }
 
   const handleSubmit = () => {
+    let regex = new RegExp("firebase");
     // img handling
     const imgUid = uuidv4();
     const pfpRef = ref(storage, "pfp/" + imgUid);
-    if (inputElement.files?.length === 1) {
+    if (inputElement.files?.length === 1 && pfpUrl != "") {
+      console.log(pfpUrl);
       uploadBytes(pfpRef, inputElement.files[0]).then((snapshot) => {
         console.log("Uploaded a blob or file!");
         getDownloadURL(ref(storage, "pfp/" + imgUid)).then((url) => {
@@ -55,11 +61,26 @@ export default function Settings() {
       });
     } else {
       // profile handling
-      updateUserProfile(username, null);
+      if (!String(pfpUrl).toLocaleLowerCase().match(regex)) {
+        // profile handling
+        console.log(regex);
+        updateUserProfile(username, pfpUrl);
+        console.log("updated without changing pfp!");
+        return;
+      } else {
+        console.log(pfpUrl);
+        updateUserProfile(username, null);
+        console.log("updated without pfp!");
+        return;
+      }
     }
   };
 
   // --- useEffects
+  function resetPhoto() {
+    setPfpUrl("");
+    console.log(pfpUrl);
+  }
 
   // ------------- FIRST LOAD
   useEffect(() => {
@@ -80,6 +101,15 @@ export default function Settings() {
         }
       });
     })();
+
+    document
+      .getElementById("imgUpload")
+      ?.addEventListener("change", function (e) {
+        if (inputElement.files?.length === 1) {
+          pfpBlob = URL.createObjectURL(inputElement.files[0]);
+          setPfpUrl(pfpBlob);
+        }
+      });
   }, []);
 
   return (
@@ -130,7 +160,13 @@ export default function Settings() {
             </Button>
             <Spacer y={0.7} />
           </div>
-          <UserPreview username={username} imgUrl={pfpUrl} />
+          <UserPreview
+            username={username}
+            imgUrl={pfpUrl}
+            callback={() => {
+              resetPhoto();
+            }}
+          />
         </div>
         <p>
           Found a bug?{" "}
@@ -138,6 +174,7 @@ export default function Settings() {
             Open an issue
           </a>
         </p>
+        <GoBackButton />
       </main>
     </>
   );
