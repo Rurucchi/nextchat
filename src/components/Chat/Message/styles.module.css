@@ -1,0 +1,22 @@
+.info {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  overflow-wrap: break-word;
+}
+
+.messageContainer {
+  display: flex;
+  flex-wrap: wrap;
+  height: fit-content;
+  overflow-wrap: break-word;
+}
+
+.messageBody {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  word-wrap: break-word;
+  word-break: break-all;
+  line-break: anywhere;
+}
