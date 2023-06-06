@@ -13,6 +13,8 @@
   height: 95vh;
   overflow: auto;
   display: flex;
+  flex-direction: column;
+  gap: 10px;
   border: solid;
   border-radius: 15px;
   padding: 10px;

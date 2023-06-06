@@ -9,7 +9,7 @@ export default async function sendMessage(
   user: string
 ) {
   try {
-    const messageRef = doc(db, "chat", "messages");
+    const messageRef = doc(db, "chat", user + "-" + time);
     await setDoc(messageRef, { content, time, user });
   } catch (error) {
     console.error(error);

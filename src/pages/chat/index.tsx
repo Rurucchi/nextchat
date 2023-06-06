@@ -21,6 +21,10 @@ import { Send } from "react-iconly";
 import firebaseApp from "@/firebaseconfig";
 import getCurrentUser from "../api/auth/firebase/get_current_user";
 import LogoutButton from "@/components/Buttons/LogoutButton/LogoutButton";
+import sendMessage from "../api/firestore/sendMessage";
+import getMessageHistory from "../api/firestore/getMessages";
+import socketMessage from "../api/firestore/socket";
+
 const auth = getAuth(firebaseApp);
 
 // api
@@ -28,10 +32,13 @@ const auth = getAuth(firebaseApp);
 export default function Chat() {
   const router = useRouter();
 
+  //states
   const [input, setInput] = useState("");
 
-  // worst code i willl evver write smh
+  //top level variables
+  let messageHistory: object[] = [];
 
+  // onload
   useEffect(() => {
     (async () => {
       getAuth(firebaseApp).onAuthStateChanged(function (user) {
@@ -44,6 +51,32 @@ export default function Chat() {
       });
     })();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      let req = await getMessageHistory(messageHistory);
+      messageHistory = req;
+      let socket = await socketMessage(messageHistory);
+      console.log(messageHistory);
+    })();
+  }, []);
+
+  async function uploadMessage(content: string) {
+    try {
+      let time = Date.now();
+      getAuth(firebaseApp).onAuthStateChanged(async function (user) {
+        if (user?.displayName) {
+          await sendMessage(content, time, user.displayName);
+          return true;
+        } else {
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
+  }
 
   return (
     <>
@@ -63,19 +96,44 @@ export default function Chat() {
             date={1684492038065}
             imgUrl={null}
           />
+          <Message
+            username="Test"
+            content="retardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretard"
+            date={1684492038065}
+            imgUrl={null}
+          />
           <div className={css.userInputContainer}>
-            <Input
-              clearable
-              contentRightStyling={false}
-              placeholder="Type your message..."
-              contentRight={
-                <SendButton>
-                  <Send />
-                </SendButton>
-              }
-              size="xl"
-              fullWidth
-            />
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                uploadMessage(input);
+                setInput("");
+              }}
+            >
+              <Input
+                clearable
+                contentRightStyling={false}
+                placeholder="Type your message..."
+                contentRight={
+                  <SendButton
+                    onSubmit={() => {
+                      uploadMessage(input);
+                    }}
+                  >
+                    <Send />
+                  </SendButton>
+                }
+                size="xl"
+                fullWidth
+                value={input}
+                onChange={(e) => {
+                  setInput(e.target.value);
+                }}
+                onSubmit={() => {
+                  uploadMessage(input);
+                }}
+              />
+            </form>
           </div>
         </div>
       </main>
