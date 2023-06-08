@@ -23,11 +23,25 @@ import getCurrentUser from "../api/auth/firebase/get_current_user";
 import LogoutButton from "@/components/Buttons/LogoutButton/LogoutButton";
 import sendMessage from "../api/firestore/sendMessage";
 import getMessageHistory from "../api/firestore/getMessages";
-import socketMessage from "../api/firestore/socket";
+
+import {
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+  limit,
+  getFirestore,
+} from "firebase/firestore";
 
 const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
-// api
+//types
+interface messageType {
+  user: string;
+  content: string;
+  time: number;
+}
 
 export default function Chat() {
   const router = useRouter();
@@ -36,7 +50,7 @@ export default function Chat() {
   const [input, setInput] = useState("");
 
   //top level variables
-  let messageHistory: object[] = [];
+  let messageHistory: messageType[] = [];
 
   // onload
   useEffect(() => {
@@ -52,14 +66,29 @@ export default function Chat() {
     })();
   }, []);
 
+  // --------------------------------------- DATA
+
   useEffect(() => {
     (async () => {
-      let req = await getMessageHistory(messageHistory);
-      messageHistory = req;
-      let socket = await socketMessage(messageHistory);
-      console.log(messageHistory);
+      await getMessageHistory().then((res) => {
+        res.forEach((res) => {
+          const message: messageType = { user: res.user };
+          messageHistory.push();
+        });
+      });
     })();
   }, []);
+
+  // useEffect(() => {
+  //   console.log(messageHistory);
+  // }, [messageHistory]);
+
+  const q = query(collection(db, "chat"), orderBy("time"), limit(1));
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      messageHistory.push(doc.data());
+    });
+  });
 
   async function uploadMessage(content: string) {
     try {
@@ -78,6 +107,8 @@ export default function Chat() {
     }
   }
 
+  // -------------------------------- COMPONENT HANDLING
+
   return (
     <>
       <Head>
@@ -90,18 +121,16 @@ export default function Chat() {
         <SettingsButton />
         <LogoutButton />
         <div className={css.chatContainer}>
-          <Message
-            username="Test"
-            content="retardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretard"
-            date={1684492038065}
-            imgUrl={null}
-          />
-          <Message
-            username="Test"
-            content="retardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretardretard"
-            date={1684492038065}
-            imgUrl={null}
-          />
+          {messageHistory.map((item) => {
+            return (
+              <Message
+                username={item.user}
+                content={item.content}
+                date={item.time}
+                imgUrl={null}
+              />
+            );
+          })}
           <div className={css.userInputContainer}>
             <form
               onSubmit={(e) => {
@@ -111,6 +140,7 @@ export default function Chat() {
               }}
             >
               <Input
+                label={undefined}
                 clearable
                 contentRightStyling={false}
                 placeholder="Type your message..."

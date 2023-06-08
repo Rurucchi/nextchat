@@ -9,7 +9,8 @@ import firebaseApp from "@/firebaseconfig";
 
 const db = getFirestore(firebaseApp);
 
-export default async function getMessageHistory(history: Array<object>) {
+export default async function getMessageHistory() {
+  let history: object[] = [];
   const querySnapshot = await getDocs(collection(db, "chat"));
   querySnapshot.forEach((doc) => {
     history.push(doc.data());
