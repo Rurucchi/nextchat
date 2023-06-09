@@ -48,9 +48,10 @@ export default function Chat() {
 
   //states
   const [input, setInput] = useState("");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   //top level variables
-  let messageHistory: messageType[] = [];
+  const [messageHistory, setMessageHistory] = useState<any[]>([]);
 
   // onload
   useEffect(() => {
@@ -70,25 +71,29 @@ export default function Chat() {
 
   useEffect(() => {
     (async () => {
-      await getMessageHistory().then((res) => {
-        res.forEach((res) => {
-          const message: messageType = { user: res.user };
-          messageHistory.push();
-        });
+      let req = await getMessageHistory();
+      req.forEach((item: any) => {
+        setMessageHistory([
+          ...messageHistory,
+          { user: item.user, content: item.content, time: item.time },
+        ]);
       });
+      setIsLoaded(true);
+      console.log(messageHistory);
+      console.log(isLoaded);
     })();
   }, []);
 
-  // useEffect(() => {
-  //   console.log(messageHistory);
-  // }, [messageHistory]);
+  useEffect(() => {
+    console.log(messageHistory);
+  }, [messageHistory]);
 
-  const q = query(collection(db, "chat"), orderBy("time"), limit(1));
-  const unsubscribe = onSnapshot(q, (querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      messageHistory.push(doc.data());
-    });
-  });
+  // const q = query(collection(db, "chat"), orderBy("time", "desc"), limit(1));
+  // const unsubscribe = onSnapshot(q, (querySnapshot) => {
+  //   querySnapshot.forEach((doc: any) => {
+  //     messageHistory.push(doc.data());
+  //   });
+  // });
 
   async function uploadMessage(content: string) {
     try {
@@ -121,16 +126,15 @@ export default function Chat() {
         <SettingsButton />
         <LogoutButton />
         <div className={css.chatContainer}>
-          {messageHistory.map((item) => {
-            return (
+          {isLoaded &&
+            messageHistory.map((item) => (
               <Message
                 username={item.user}
                 content={item.content}
                 date={item.time}
                 imgUrl={null}
               />
-            );
-          })}
+            ))}
           <div className={css.userInputContainer}>
             <form
               onSubmit={(e) => {
@@ -140,10 +144,9 @@ export default function Chat() {
               }}
             >
               <Input
-                label={undefined}
                 clearable
                 contentRightStyling={false}
-                placeholder="Type your message..."
+                labelPlaceholder="Type your message..."
                 contentRight={
                   <SendButton
                     onSubmit={() => {
