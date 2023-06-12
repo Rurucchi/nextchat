@@ -12,7 +12,7 @@ const db = getFirestore(firebaseApp);
 export default async function getMessageHistory() {
   let history: object[] = [];
   const querySnapshot = await getDocs(
-    query(collection(db, "chat"), orderBy("time", "desc"))
+    query(collection(db, "chat"), orderBy("time"))
   );
   querySnapshot.forEach((doc) => {
     history.push(doc.data());
