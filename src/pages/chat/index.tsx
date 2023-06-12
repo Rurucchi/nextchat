@@ -46,7 +46,7 @@ export default function Chat() {
 
   //states
   const [input, setInput] = useState("");
-  // const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   //top level variables
   const [messageHistory, setMessageHistory] = useState<any[]>([]);
@@ -89,6 +89,7 @@ export default function Chat() {
     (async () => {
       let prevMessages = await getMessageHistory();
       setMessageHistory(prevMessages);
+      setIsLoaded(true);
     })();
   }, []);
 
@@ -96,6 +97,7 @@ export default function Chat() {
     console.log(messageHistory.length);
   }, [messageHistory]);
 
+  // update last message in real time
   useEffect(() => {
     const q = query(collection(db, "chat"), orderBy("time", "desc"), limit(1));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -105,11 +107,13 @@ export default function Chat() {
     });
   }, []);
 
+  // update array of messages
   useEffect(() => {
     setMessageHistory([...messageHistory, lastMessage]);
     window.scrollBy(0, 1);
   }, [lastMessage]);
 
+  // write new data
   async function uploadMessage(content: string) {
     if (content != "" || content != null || content != undefined) {
       try {
@@ -150,7 +154,7 @@ export default function Chat() {
         <LogoutButton />
         <div className={css.chatContainer}>
           <div className={css.chatContentContainer} id="chat">
-            {messageHistory.length > 1 &&
+            {isLoaded &&
               messageHistory.map((item) => (
                 <Message
                   username={item.displayName}
