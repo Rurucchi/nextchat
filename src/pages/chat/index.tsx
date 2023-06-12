@@ -1,15 +1,11 @@
 import { useEffect, useState } from "react";
-import { Input, Spacer } from "@nextui-org/react";
+import { Input } from "@nextui-org/react";
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "next/font/google";
-import styles from "@/styles/Home.module.css";
 import { useRouter } from "next/router";
 import { getAuth } from "firebase/auth";
 
 // css stuff
 const css = require("./styles.module.css");
-const inter = Inter({ subsets: ["latin"] });
 
 // components
 import Message from "@/components/Chat/Message/Message";
@@ -43,15 +39,33 @@ interface messageType {
   time: number;
 }
 
+// let lastMessage: messageType;
+
 export default function Chat() {
   const router = useRouter();
 
   //states
   const [input, setInput] = useState("");
-  const [isLoaded, setIsLoaded] = useState(false);
+  // const [isLoaded, setIsLoaded] = useState(false);
 
   //top level variables
   const [messageHistory, setMessageHistory] = useState<any[]>([]);
+  const [lastMessage, setLastMessage] = useState();
+
+  // scroll handling
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const scroller = document.getElementById("chat");
+      if (scroller) {
+        scroller.scrollTo({
+          left: 0,
+          top: scroller.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [messageHistory]);
 
   // onload
   useEffect(() => {
@@ -69,46 +83,55 @@ export default function Chat() {
 
   // --------------------------------------- DATA
 
+  // get stored data
+
   useEffect(() => {
     (async () => {
-      let req = await getMessageHistory();
-      req.forEach((item: any) => {
-        setMessageHistory([
-          ...messageHistory,
-          { user: item.user, content: item.content, time: item.time },
-        ]);
-      });
-      setIsLoaded(true);
-      console.log(messageHistory);
-      console.log(isLoaded);
+      let prevMessages = await getMessageHistory();
+      setMessageHistory(prevMessages);
     })();
   }, []);
 
   useEffect(() => {
-    console.log(messageHistory);
+    console.log(messageHistory.length);
   }, [messageHistory]);
 
-  // const q = query(collection(db, "chat"), orderBy("time", "desc"), limit(1));
-  // const unsubscribe = onSnapshot(q, (querySnapshot) => {
-  //   querySnapshot.forEach((doc: any) => {
-  //     messageHistory.push(doc.data());
-  //   });
-  // });
+  useEffect(() => {
+    const q = query(collection(db, "chat"), orderBy("time", "desc"), limit(1));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((doc: any) => {
+        setLastMessage(doc.data());
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    setMessageHistory([...messageHistory, lastMessage]);
+    window.scrollBy(0, 1);
+  }, [lastMessage]);
 
   async function uploadMessage(content: string) {
-    try {
-      let time = Date.now();
-      getAuth(firebaseApp).onAuthStateChanged(async function (user) {
-        if (user?.displayName) {
-          await sendMessage(content, time, user.displayName);
-          return true;
-        } else {
-          return false;
-        }
-      });
-    } catch (error) {
-      console.error(error);
-      return false;
+    if (content != "" || content != null || content != undefined) {
+      try {
+        let time = Date.now();
+        getAuth(firebaseApp).onAuthStateChanged(async function (user) {
+          if (user?.displayName && user.email) {
+            await sendMessage(
+              user.email,
+              user.displayName,
+              user.photoURL,
+              content,
+              time
+            );
+            return true;
+          } else {
+            return false;
+          }
+        });
+      } catch (error) {
+        console.error(error);
+        return false;
+      }
     }
   }
 
@@ -126,15 +149,17 @@ export default function Chat() {
         <SettingsButton />
         <LogoutButton />
         <div className={css.chatContainer}>
-          {isLoaded &&
-            messageHistory.map((item) => (
-              <Message
-                username={item.user}
-                content={item.content}
-                date={item.time}
-                imgUrl={null}
-              />
-            ))}
+          <div className={css.chatContentContainer} id="chat">
+            {messageHistory.length > 1 &&
+              messageHistory.map((item) => (
+                <Message
+                  username={item.displayName}
+                  content={item.content}
+                  date={item.time}
+                  imgUrl={item.pfpUrl}
+                />
+              ))}
+          </div>
           <div className={css.userInputContainer}>
             <form
               onSubmit={(e) => {
