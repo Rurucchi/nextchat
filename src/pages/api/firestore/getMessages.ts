@@ -17,5 +17,9 @@ export default async function getMessageHistory() {
   querySnapshot.forEach((doc) => {
     history.push(doc.data());
   });
+
+  // onsnapshot will query the last element, thats why we delete it here so it won't be returned twice
+  history.pop();
+
   return history;
 }
